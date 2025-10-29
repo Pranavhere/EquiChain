@@ -17,7 +17,7 @@
 [🛠️ Tech Stack](#tech-stack) •
 [🔮 Vision](#vision)
 
-<img src="https://user-images.githubusercontent.com/your-user-id/equichain-banner.png" width="800px" alt="EquiChain Banner">
+<img src=".github/banner.svg" width="800px" alt="EquiChain Banner">
 
 </div>
 
