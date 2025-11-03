@@ -119,11 +119,6 @@ EquiChain aims to revolutionize how Indians invest in stocks. We're building a f
 
 ## ✅ Progress — what we've completed
 
-- Polished the project README with an engaging, visual layout and an SVG banner.
-- Added an MIT `LICENSE` matching the README badge.
-- Added developer documentation: `docs/dev.md` with setup, structure, and testing notes.
-- Added contribution guidelines: `.github/CONTRIBUTING.md`.
-- Added a crisp SVG banner at `.github/banner.svg` and wired it into the README.
 - Added Solidity smart contracts under `contracts/`:
   - `EquiChainFractionToken.sol` — ERC-20 based fractional token (mint & burn by owner)
   - `EquiChainMarket.sol` — market interactions (simulation)
@@ -132,8 +127,6 @@ EquiChain aims to revolutionize how Indians invest in stocks. We're building a f
   - `hardhat.config.cjs`, `package.json`, `package-lock.json`, `tsconfig.json`
   - `scripts/` for deployment and helper flows
   - `test/` with sample tests
-
-All of the above have been committed and pushed to the repository. I made sure generated build folders and dependencies remain ignored (for example `artifacts/`, `cache/`, `node_modules/`, `types/`) by using the `.gitignore`.
 
 ## 🚧 Next steps — recommended roadmap
 
@@ -151,6 +144,5 @@ All of the above have been committed and pushed to the repository. I made sure g
 6. Integration & demo
 	- Wire backend to frontend, seed testnet tokens, and prepare a demo flow for users.
 
-If you want, I can start with any of the above: implement the backend mock (FastAPI), write contract unit tests, build the frontend demo, or add CI. Tell me which to prioritize and I will: create a todo plan, implement the code, run tests, and push only the necessary files.
 
 
