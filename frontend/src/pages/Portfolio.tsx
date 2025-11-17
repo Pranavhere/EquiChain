@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { portfolioAPI, marketAPI } from '../lib/api';
+import { portfolioAPI } from '../lib/api';
 
 export default function Portfolio() {
   const navigate = useNavigate();
   const [portfolio, setPortfolio] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [sellAmount, setSellAmount] = useState('');
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
   const [showTxModal, setShowTxModal] = useState(false);
 
