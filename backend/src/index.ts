@@ -29,31 +29,40 @@ async function startServer() {
     console.log('🗄️  Initializing database...');
     await initializeDatabase();
 
-    // Initialize blockchain connection (async with retry - non-blocking)
+        // Initialize blockchain connection (REQUIRED - block until ready)
     console.log('🔗 Initializing blockchain...');
     
-    const retryBlockchain = async (attempt = 1, maxAttempts = 60) => {
+    let blockchainReady = false;
+    let attempts = 0;
+    const maxAttempts = 120; // 2 minutes total
+    
+    while (!blockchainReady && attempts < maxAttempts) {
       try {
         await initializeBlockchain();
+        blockchainReady = true;
         console.log('✅ Blockchain initialized successfully\n');
       } catch (err: any) {
-        console.warn(`⚠️  Blockchain initialization attempt ${attempt}/${maxAttempts} failed:`, err.message);
-        if (attempt < maxAttempts) {
-          const delay = 2000; // Fixed 2 second delay
-          if (attempt % 5 === 0) {
-            console.log(`🔄 Still waiting for blockchain... (${Math.floor(attempt/5)}/12)`);
-          }
-          setTimeout(() => retryBlockchain(attempt + 1, maxAttempts), delay);
+        attempts++;
+        const waitTime = 1000; // 1 second between attempts
+        const progress = Math.round((attempts / maxAttempts) * 100);
+        
+        if (attempts % 10 === 0) {
+          console.warn(`⏳ Waiting for blockchain... ${progress}% (${attempts}/${maxAttempts})`);
+        }
+        
+        if (attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, waitTime));
         } else {
-          console.error('❌ WARNING: Blockchain initialization failed after max attempts.');
-          console.error('❌ Backend will run but trading features may not work until blockchain is available.');
+          console.error('❌ FATAL: Blockchain initialization failed after 2 minutes');
+          console.error('Please ensure:');
+          console.error('  1. Blockchain service is running');
+          console.error('  2. Contracts are deployed');
+          console.error('  3. RPC URL is correct:', config.blockchain.rpcUrl);
+          process.exit(1);
         }
       }
-    };
+    }
     
-    // Start blockchain connection in background
-    retryBlockchain();
-
     // Create Express app
     const app = express();
 

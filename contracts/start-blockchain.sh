@@ -1,29 +1,26 @@
 #!/bin/sh
 
+set -e
+
 echo "🚀 Starting Hardhat blockchain node..."
 
-# Start Hardhat node in background
-timeout 120 npx hardhat node --hostname 0.0.0.0 &
+# Start Hardhat node and capture the PID
+npx hardhat node --hostname 0.0.0.0 &
 NODE_PID=$!
 
-echo "⏳ Waiting 15 seconds for blockchain to be ready..."
-sleep 15
+# Wait for the node to start
+echo "⏳ Waiting 10 seconds for blockchain to start..."
+sleep 10
 
-# Try to deploy contracts with timeout
-echo "📜 Deploying contracts..."
-timeout 60 npx hardhat run scripts/deploy.ts --network localhost
+# Deploy contracts
+echo "📜 Deploying contracts to localhost..."
+npx hardhat run scripts/deploy.ts --network localhost
 
-if [ $? -eq 0 ]; then
-  echo "✅ Contracts deployed successfully!"
-else
-  echo "⚠️  Deployment timed out or failed, but blockchain is running"
-fi
+echo "✅ Blockchain and contracts are ready!"
 
-echo "✅ Blockchain ready!"
+# Keep running
+wait $NODE_PID
 
-# Keep the container running
-wait $NODE_PID 2>/dev/null || true
 
-echo "🛑 Blockchain stopped"
 
 
