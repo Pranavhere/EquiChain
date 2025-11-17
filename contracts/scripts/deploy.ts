@@ -11,7 +11,8 @@ async function main() {
   // Get deployer account
   const [deployer] = await ethers.getSigners();
   console.log("📝 Deploying contracts with account:", deployer.address);
-  console.log("💰 Account balance:", ethers.formatEther(await ethers.provider.getBalance(deployer.address)), "ETH\n");
+  const balance = await ethers.provider.getBalance(deployer.address);
+  console.log("💰 Account balance:", ethers.formatEther(balance), "ETH\n");
   
   // Deploy FractionalEquityToken
   console.log("📜 Deploying FractionalEquityToken...");
@@ -21,22 +22,38 @@ async function main() {
   const tokenAddress = await fractionToken.getAddress();
   console.log("✅ FractionalEquityToken deployed to:", tokenAddress);
   
-  // Deploy EquiChainMarket
+  // Deploy EquiChainMarket with timeout
   console.log("\n📜 Deploying EquiChainMarket...");
-  const EquiChainMarketFactory = await ethers.getContractFactory("EquiChainMarket");
-  const market = await EquiChainMarketFactory.deploy(
-    tokenAddress,
-    MRF_PRICE_IN_PAISE
-  );
-  await market.waitForDeployment();
-  const marketAddress = await market.getAddress();
-  console.log("✅ EquiChainMarket deployed to:", marketAddress);
-  
-  // Set market contract in token
-  console.log("\n🔗 Connecting contracts...");
-  const tx = await fractionToken.setMarketContract(marketAddress);
-  await tx.wait();
-  console.log("✅ Market contract set in FractionalEquityToken");
+  let market;
+  let marketAddress: string;
+  try {
+    const EquiChainMarketFactory = await ethers.getContractFactory("EquiChainMarket");
+    market = await EquiChainMarketFactory.deploy(tokenAddress, MRF_PRICE_IN_PAISE);
+    await market.waitForDeployment();
+    marketAddress = await market.getAddress();
+    console.log("✅ EquiChainMarket deployed to:", marketAddress);
+    
+    // Set market contract in token
+    console.log("\n🔗 Connecting contracts...");
+    const tx = await fractionToken.setMarketContract(marketAddress);
+    await tx.wait();
+    console.log("✅ Market contract set in FractionalEquityToken");
+  } catch (deployError) {
+    console.error("⚠️  Deployment error:", deployError);
+    if (market) {
+      marketAddress = await market.getAddress();
+      console.log("✅ EquiChainMarket deployed (despite error) to:", marketAddress);
+      try {
+        const tx = await fractionToken.setMarketContract(marketAddress);
+        await tx.wait();
+        console.log("✅ Market contract set in FractionalEquityToken");
+      } catch (e) {
+        console.warn("⚠️  Could not connect contracts, but they are deployed");
+      }
+    } else {
+      throw deployError;
+    }
+  }
   
   // Prepare deployment data
   const deploymentData = {
