@@ -1,6 +1,34 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// In Railway, frontend and backend are at different URLs on the same network
+// Frontend is served by nginx, backend is a separate service
+// We need to use the backend's public URL
+let API_URL = import.meta.env.VITE_API_URL;
+
+if (!API_URL) {
+  // Auto-detect backend URL
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+    
+    if (isLocalhost) {
+      // Local development
+      API_URL = 'http://localhost:8000';
+    } else {
+      // Railway production - use the backend service name or URL
+      API_URL = `https://${hostname.replace('equichain-frontend', 'equichain-backend')}.up.railway.app`;
+      
+      // Fallback if the pattern doesn't match
+      if (!API_URL.includes('backend')) {
+        API_URL = 'https://equichain-backend-production.up.railway.app';
+      }
+    }
+  } else {
+    API_URL = 'http://localhost:8000';
+  }
+}
+
+console.log('📡 API URL:', API_URL);
 
 export const api = axios.create({
   baseURL: API_URL,
