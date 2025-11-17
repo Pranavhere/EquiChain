@@ -30,29 +30,45 @@ The application is fully deployed and operational on Railway.app with:
 ## 📸 Screenshots
 
 ### Dashboard - Live Trading Interface
-The main dashboard displays real-time stock prices, order book, and trading interface:
-![Dashboard Screenshot](./docs/screenshots/dashboard.png)
+View real-time stock prices and market data:
+
+![Dashboard Screenshot](./Dashboard.png)
+
+Features shown:
 - Real-time prices for NIFTY 50 stocks
-- Live order book with bid/ask levels
-- Instant buy/sell interface
-- Market data with price changes and spreads
+- Live market data with price changes and spreads
 
-### Portfolio - Holdings & Transactions
-Track your fractional holdings and complete transaction history:
-![Portfolio Screenshot](./docs/screenshots/portfolio.png)
-- Cash balance and portfolio value
-- All holdings with average price and P&L
-- Recent transaction history with blockchain hash
-- Real-time balance updates
+### Buy/Sell Trading Interface
+Execute trades directly from the platform:
 
-### Blockchain Explorer - Live Activity
-Monitor blockchain transactions and blocks in real-time:
-![Blockchain Tech Screenshot](./docs/screenshots/blockchain-tech.png)
-- Total transactions count
-- Live gas usage tracking
-- Recent blocks and transactions
-- Contract interactions
-- Real-time updates every 5 seconds
+![Buy/Sell Screenshot](./Buy:Sell.png)
+
+Features shown:
+- Order book with bid/ask levels
+- Instant buy/sell execution
+- Order confirmation and details
+
+### Recent Transactions
+Track all your trading activity:
+
+![Recent Transactions Screenshot](./RecentTxns.png)
+
+Features shown:
+- Complete transaction history
+- Blockchain transaction hashes
+- Buy/Sell status indicators
+- Timestamp and amount details
+
+### Smart Contract Details
+Monitor blockchain interactions:
+
+![Smart Contract Details Screenshot](./Smartcontractdetails.png)
+
+Features shown:
+- Contract deployment information
+- Transaction gas usage
+- Block information
+- Contract state details
 
 ## 🏗️ Architecture
 
@@ -627,8 +643,6 @@ For issues, questions, or improvements:
 ---
 
 **⚠️ Important Note**: This is a simulation for educational purposes. Not for production use with real money.
-
-
 
 **🚀 Ready to deploy?** Check out [RAILWAY_SETUP.md](./RAILWAY_SETUP.md) for step-by-step instructions!
 
