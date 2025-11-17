@@ -4,6 +4,7 @@ import cors from 'cors';
 import { config } from './config/env';
 import { initializeDatabase } from './config/db';
 import { initializeBlockchain } from './config/blockchain';
+// Railway: Contracts redeployed 2025-11-17
 
 // Routes
 import authRoutes from './routes/auth';
