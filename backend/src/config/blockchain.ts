@@ -103,7 +103,7 @@ export async function initializeBlockchain() {
 
 export function getBlockchainInstances() {
   if (!provider || !custodianWallet || !tokenContract || !marketContract) {
-    throw new Error('Blockchain not initialized. Call initializeBlockchain() first.');
+    throw new Error('Blockchain not initialized yet. Please wait a moment and try again.');
   }
   return { provider, custodianWallet, tokenContract, marketContract };
 }

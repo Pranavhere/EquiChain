@@ -148,19 +148,35 @@ router.post('/buy', authMiddleware, async (req: AuthRequest, res: Response) => {
     }
 
     // Get LIVE price from Yahoo Finance for the selected stock
-    const { marketContract } = getBlockchainInstances();
-    const blockchainPrice = await marketContract.getCurrentPrice();
-    const livePriceInPaise = await getPriceWithFallback(stock.yahooSymbol, Number(blockchainPrice));
+    let livePriceInPaise: number;
+    try {
+      const { marketContract } = getBlockchainInstances();
+      const blockchainPrice = await marketContract.getCurrentPrice();
+      livePriceInPaise = await getPriceWithFallback(stock.yahooSymbol, Number(blockchainPrice));
+    } catch (blockchainError: any) {
+      // If blockchain isn't ready, use fallback price
+      console.warn('⚠️  Blockchain not available, using fallback price');
+      livePriceInPaise = await getPriceWithFallback(stock.yahooSymbol, 10000000); // Default fallback
+    }
     
     console.log(`🛒 Buy - Amount: ₹${amountInRupees}, Live Price: ₹${livePriceInPaise/100}`);
 
     // Call blockchain smart contract to mint tokens
-    const { custodianWallet } = getBlockchainInstances();
-    const custodianAddress = custodianWallet.address;
-    
-    // Blockchain transaction: buyFractions
-    const tx = await marketContract.buyFractions(custodianAddress, amountInPaise);
-    const receipt = await tx.wait();
+    let receipt: any;
+    let custodianAddress: string;
+    try {
+      const { custodianWallet, marketContract: market } = getBlockchainInstances();
+      custodianAddress = custodianWallet.address;
+      
+      // Blockchain transaction: buyFractions
+      const tx = await market.buyFractions(custodianAddress, amountInPaise);
+      receipt = await tx.wait();
+    } catch (blockchainError: any) {
+      return res.status(503).json({ 
+        error: 'Blockchain service temporarily unavailable. Please try again in a moment.',
+        details: blockchainError.message
+      });
+    }
 
     console.log(`⛓️  Blockchain TX: ${receipt.hash}`);
     console.log(`⛽ Gas used: ${receipt.gasUsed.toString()}`);
@@ -281,9 +297,15 @@ router.post('/sell', authMiddleware, async (req: AuthRequest, res: Response) => 
     }
 
     // Get current live price (with fallback to blockchain)
-    const { marketContract } = getBlockchainInstances();
-    const blockchainPrice = await marketContract.getCurrentPrice();
-    const livePriceInPaise = await getPriceWithFallback(stock.yahooSymbol, Number(blockchainPrice));
+    let livePriceInPaise: number;
+    try {
+      const { marketContract } = getBlockchainInstances();
+      const blockchainPrice = await marketContract.getCurrentPrice();
+      livePriceInPaise = await getPriceWithFallback(stock.yahooSymbol, Number(blockchainPrice));
+    } catch (blockchainError: any) {
+      console.warn('⚠️  Blockchain not available for sell, using fallback price');
+      livePriceInPaise = await getPriceWithFallback(stock.yahooSymbol, 10000000);
+    }
 
     console.log(`💰 Sell - Amount: ₹${amountInRupees}, Live Price: ₹${livePriceInPaise/100}`);
 
@@ -304,11 +326,20 @@ router.post('/sell', authMiddleware, async (req: AuthRequest, res: Response) => 
     }
 
     // Call blockchain to burn tokens
-    const { custodianWallet } = getBlockchainInstances();
-    const custodianAddress = custodianWallet.address;
-    
-    const tx = await marketContract.sellFractions(custodianAddress, tokenAmountWei);
-    const receipt = await tx.wait();
+    let receipt: any;
+    let custodianAddress: string;
+    try {
+      const { custodianWallet, marketContract: market } = getBlockchainInstances();
+      custodianAddress = custodianWallet.address;
+      
+      const tx = await market.sellFractions(custodianAddress, tokenAmountWei);
+      receipt = await tx.wait();
+    } catch (blockchainError: any) {
+      return res.status(503).json({ 
+        error: 'Blockchain service temporarily unavailable. Please try again in a moment.',
+        details: blockchainError.message
+      });
+    }
 
     console.log(`⛓️  Sell TX: ${receipt.hash}`);
     console.log(`⛽ Gas used: ${receipt.gasUsed.toString()}`);
