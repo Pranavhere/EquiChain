@@ -29,10 +29,11 @@ async function startServer() {
     console.log('🗄️  Initializing database...');
     await initializeDatabase();
 
-    // Initialize blockchain connection (REQUIRED for production)
+    // Initialize blockchain connection (non-blocking)
     console.log('🔗 Initializing blockchain...');
-    await initializeBlockchain();
-    console.log('✅ Blockchain initialized successfully\n');
+    initializeBlockchain()
+      .then(() => console.log('✅ Blockchain initialized successfully\n'))
+      .catch((err) => console.warn('⚠️  Blockchain initialization failed (will retry):', err.message));
 
     // Create Express app
     const app = express();

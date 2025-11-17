@@ -78,6 +78,14 @@ export async function initializeBlockchain() {
     console.log(`📜 Token Contract: ${tokenAddress}`);
     console.log(`📜 Market Contract: ${marketAddress}`);
     
+    // Verify contracts exist by checking code at address
+    const tokenCode = await provider.getCode(tokenAddress);
+    const marketCode = await provider.getCode(marketAddress);
+    
+    if (tokenCode === '0x' || marketCode === '0x') {
+      throw new Error('Contracts not deployed at specified addresses. Please redeploy contracts.');
+    }
+    
     // Verify contracts
     const tokenName = await tokenContract.name();
     const tokenSymbol = await tokenContract.symbol();
