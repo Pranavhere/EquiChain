@@ -9,6 +9,7 @@ if (!API_URL) {
   // Auto-detect backend URL
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
+    const protocol = window.location.protocol;
     const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
     
     if (isLocalhost) {
@@ -16,19 +17,29 @@ if (!API_URL) {
       API_URL = 'http://localhost:8000';
     } else {
       // Railway production - use the backend service name or URL
-      API_URL = `https://${hostname.replace('equichain-frontend', 'equichain-backend')}.up.railway.app`;
-      
-      // Fallback if the pattern doesn't match
-      if (!API_URL.includes('backend')) {
-        API_URL = 'https://equichain-backend-production.up.railway.app';
+      // Try to match the pattern from frontend hostname
+      if (hostname.includes('equichain-frontend')) {
+        // Replace 'frontend' with 'backend' in the hostname
+        API_URL = `${protocol}//${hostname.replace('equichain-frontend', 'equichain-backend')}`;
+      } else if (hostname.includes('railway.app')) {
+        // Generic Railway domain - try common backend URL patterns
+        API_URL = `${protocol}//equichain-backend-production.up.railway.app`;
+      } else {
+        // Fallback
+        API_URL = `${protocol}//equichain-backend-production.up.railway.app`;
       }
     }
+    
+    console.log('🔍 Auto-detecting API URL:');
+    console.log('   Hostname:', hostname);
+    console.log('   Protocol:', protocol);
+    console.log('   Detected URL:', API_URL);
   } else {
     API_URL = 'http://localhost:8000';
   }
 }
 
-console.log('📡 API URL:', API_URL);
+console.log('📡 Final API URL:', API_URL);
 
 export const api = axios.create({
   baseURL: API_URL,
