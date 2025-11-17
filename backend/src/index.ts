@@ -19,8 +19,11 @@ async function startServer() {
     // Initialize database
     await initializeDatabase();
 
-    // Initialize blockchain connection
-    await initializeBlockchain();
+    // Initialize blockchain connection (non-blocking for Railway deployment)
+    initializeBlockchain().catch(err => {
+      console.warn('⚠️  Blockchain initialization failed (will retry):', err.message);
+      console.warn('⚠️  Server will start without blockchain. Deploy contracts and restart.');
+    });
 
     // Create Express app
     const app = express();
