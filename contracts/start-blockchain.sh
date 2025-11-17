@@ -1,25 +1,10 @@
 #!/bin/sh
 
-set -e
-
 echo "🚀 Starting Hardhat blockchain node..."
+echo "⏳ Waiting for blockchain to be ready..."
 
-# Start Hardhat node and capture the PID
-npx hardhat node --hostname 0.0.0.0 &
-NODE_PID=$!
-
-# Wait for the node to start
-echo "⏳ Waiting 10 seconds for blockchain to start..."
-sleep 10
-
-# Deploy contracts
-echo "📜 Deploying contracts to localhost..."
-npx hardhat run scripts/deploy.ts --network localhost
-
-echo "✅ Blockchain and contracts are ready!"
-
-# Keep running
-wait $NODE_PID
+# Start Hardhat node in foreground (simplest approach - no deployment here)
+npx hardhat node --hostname 0.0.0.0
 
 
 

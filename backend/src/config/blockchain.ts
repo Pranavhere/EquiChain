@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import { config } from './env';
 import * as fs from 'fs';
 import * as path from 'path';
+import { execSync } from 'child_process';
 
 // ABI imports
 const FractionalEquityTokenABI = [
@@ -83,7 +84,14 @@ export async function initializeBlockchain() {
     const marketCode = await provider.getCode(marketAddress);
     
     if (tokenCode === '0x' || marketCode === '0x') {
-      throw new Error('Contracts not deployed at specified addresses. Please redeploy contracts.');
+      console.log('⚠️  Contracts not found at addresses, attempting deployment...');
+      await deployContracts();
+      // Re-check after deployment
+      const tokenCodeAfter = await provider.getCode(tokenAddress);
+      const marketCodeAfter = await provider.getCode(marketAddress);
+      if (tokenCodeAfter === '0x' || marketCodeAfter === '0x') {
+        throw new Error('Contracts still not available after deployment attempt');
+      }
     }
     
     // Verify contracts
@@ -106,6 +114,26 @@ export function getBlockchainInstances() {
     throw new Error('Blockchain not initialized yet. Please wait a moment and try again.');
   }
   return { provider, custodianWallet, tokenContract, marketContract };
+}
+
+async function deployContracts() {
+  try {
+    console.log('📜 Auto-deploying contracts...');
+    const contractsDir = path.join(__dirname, '../../..');
+    const deployScript = path.join(contractsDir, 'contracts/scripts/deploy.ts');
+    
+    // Try to run deployment from contracts directory
+    execSync(`cd ${contractsDir}/contracts && npx hardhat run scripts/deploy.ts --network localhost`, {
+      stdio: 'inherit',
+      timeout: 60000 // 60 second timeout
+    });
+    
+    console.log('✅ Contracts deployed successfully');
+    return true;
+  } catch (error) {
+    console.warn('⚠️  Could not auto-deploy contracts, will try to load from deployment file or env vars');
+    return false;
+  }
 }
 
 export { provider, custodianWallet, tokenContract, marketContract };
