@@ -1,0 +1,90 @@
+version: '3.9'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: equichain-db
+    environment:
+      POSTGRES_USER: equi
+      POSTGRES_PASSWORD: equi
+      POSTGRES_DB: equichain
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - equichain-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U equi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Hardhat Blockchain Node
+  blockchain:
+    build:
+      context: ./contracts
+      dockerfile: Dockerfile
+    container_name: equichain-blockchain
+    ports:
+      - "8545:8545"
+    networks:
+      - equichain-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8545"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - blockchain_data:/app/deployments
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: equichain-backend
+    environment:
+      DATABASE_URL: postgres://equi:equi@db:5432/equichain
+      RPC_URL: http://blockchain:8545
+      JWT_SECRET: equichain_jwt_secret_change_in_production
+      PORT: 8000
+      NODE_ENV: production
+      # First account from Hardhat node
+      CUSTODIAN_PRIVATE_KEY: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      blockchain:
+        condition: service_healthy
+    networks:
+      - equichain-network
+    volumes:
+      - ./contracts/deployments:/app/../contracts/deployments:ro
+    restart: on-failure
+
+  # Frontend Web App
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8000
+    container_name: equichain-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - equichain-network
+
+networks:
+  equichain-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  blockchain_data:
