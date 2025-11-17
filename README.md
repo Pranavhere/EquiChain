@@ -41,7 +41,7 @@ Features shown:
 ### Buy/Sell Trading Interface
 Execute trades directly from the platform:
 
-![Buy/Sell Screenshot](./Buy:Sell.png)
+![Buy/Sell Screenshot](./BuySell.png)
 
 Features shown:
 - Order book with bid/ask levels
