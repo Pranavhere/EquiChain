@@ -16,15 +16,25 @@ export default function Login() {
     setLoading(true);
 
     try {
+      console.log('📤 Attempting', isLogin ? 'login' : 'register', 'with:', { email, password: '***' });
       const response = isLogin
         ? await authAPI.login(email, password)
         : await authAPI.register(email, password);
 
+      console.log('✅ Auth successful:', response.data);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'An error occurred');
+      console.error('❌ Auth error:', {
+        message: err.message,
+        status: err.response?.status,
+        data: err.response?.data,
+        url: err.config?.url,
+        baseURL: err.config?.baseURL,
+      });
+      const errorMessage = err.response?.data?.error || err.message || 'An error occurred';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
