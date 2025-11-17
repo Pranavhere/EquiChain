@@ -162,12 +162,22 @@ router.post('/buy', authMiddleware, async (req: AuthRequest, res: Response) => {
     console.log(`🛒 Buy - Amount: ₹${amountInRupees}, Live Price: ₹${livePriceInPaise/100}`);
 
     // Call blockchain smart contract to mint tokens
-    const { custodianWallet, marketContract: market } = getBlockchainInstances();
-    const custodianAddress = custodianWallet.address;
+    let receipt: any;
+    let custodianAddress: string;
     
-    // Blockchain transaction: buyFractions
-    const tx = await market.buyFractions(custodianAddress, amountInPaise);
-    const receipt = await tx.wait();
+    try {
+      const { custodianWallet, marketContract: market } = getBlockchainInstances();
+      custodianAddress = custodianWallet.address;
+      
+      // Blockchain transaction: buyFractions
+      const tx = await market.buyFractions(custodianAddress, amountInPaise);
+      receipt = await tx.wait();
+    } catch (blockchainError: any) {
+      return res.status(503).json({ 
+        error: 'Blockchain service is initializing. Please wait a moment and try again.',
+        details: 'The blockchain service is starting up. This usually takes 10-20 seconds.'
+      });
+    }
 
     console.log(`⛓️  Blockchain TX: ${receipt.hash}`);
     console.log(`⛽ Gas used: ${receipt.gasUsed.toString()}`);
@@ -317,11 +327,21 @@ router.post('/sell', authMiddleware, async (req: AuthRequest, res: Response) => 
     }
 
     // Call blockchain to burn tokens
-    const { custodianWallet, marketContract: market } = getBlockchainInstances();
-    const custodianAddress = custodianWallet.address;
+    let receipt: any;
+    let custodianAddress: string;
     
-    const tx = await market.sellFractions(custodianAddress, tokenAmountWei);
-    const receipt = await tx.wait();
+    try {
+      const { custodianWallet, marketContract: market } = getBlockchainInstances();
+      custodianAddress = custodianWallet.address;
+      
+      const tx = await market.sellFractions(custodianAddress, tokenAmountWei);
+      receipt = await tx.wait();
+    } catch (blockchainError: any) {
+      return res.status(503).json({ 
+        error: 'Blockchain service is initializing. Please wait a moment and try again.',
+        details: 'The blockchain service is starting up. This usually takes 10-20 seconds.'
+      });
+    }
 
     console.log(`⛓️  Sell TX: ${receipt.hash}`);
     console.log(`⛽ Gas used: ${receipt.gasUsed.toString()}`);
