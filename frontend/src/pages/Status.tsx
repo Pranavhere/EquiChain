@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 
 export default function Status() {
   const [status, setStatus] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     const checkStatus = async () => {
@@ -34,7 +33,6 @@ export default function Status() {
           connected: true,
         });
       } catch (err: any) {
-        setError(err.message);
         setStatus({
           clientInfo: {
             hostname: window.location.hostname,
