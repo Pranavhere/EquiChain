@@ -51,26 +51,34 @@ export async function initializeBlockchain() {
     console.log(`💰 Custodian balance: ${ethers.formatEther(balance)} ETH`);
     
     // Load deployment addresses from environment or file
-    let tokenAddress: string;
-    let marketAddress: string;
+    let tokenAddress: string | undefined;
+    let marketAddress: string | undefined;
     
     // Try environment variables first (for production/Railway)
     if (process.env.TOKEN_CONTRACT_ADDRESS && process.env.MARKET_CONTRACT_ADDRESS) {
       tokenAddress = process.env.TOKEN_CONTRACT_ADDRESS;
       marketAddress = process.env.MARKET_CONTRACT_ADDRESS;
       console.log('📝 Using contract addresses from environment variables');
-    } else {
+    } else if (process.env.NODE_ENV === 'development' || !process.env.TOKEN_CONTRACT_ADDRESS) {
       // Fall back to deployment file (for local development)
       const deploymentsPath = path.join(__dirname, '../../../contracts/deployments/local.json');
       
-      if (!fs.existsSync(deploymentsPath)) {
-        throw new Error('Deployment file not found and no contract addresses in environment. Please deploy contracts first.');
+      if (fs.existsSync(deploymentsPath)) {
+        try {
+          const deploymentData = JSON.parse(fs.readFileSync(deploymentsPath, 'utf-8'));
+          tokenAddress = deploymentData.contracts.FractionalEquityToken.address;
+          marketAddress = deploymentData.contracts.EquiChainMarket.address;
+          console.log('📝 Using contract addresses from deployment file');
+        } catch (e) {
+          console.log('⚠️  Could not read deployment file, will attempt deployment');
+        }
+      } else {
+        console.log('⚠️  Deployment file not found, will attempt deployment');
       }
-      
-      const deploymentData = JSON.parse(fs.readFileSync(deploymentsPath, 'utf-8'));
-      tokenAddress = deploymentData.contracts.FractionalEquityToken.address;
-      marketAddress = deploymentData.contracts.EquiChainMarket.address;
-      console.log('📝 Using contract addresses from deployment file');
+    }
+    
+    if (!tokenAddress || !marketAddress) {
+      throw new Error('Contract addresses not available. Please ensure deployment completed or set TOKEN_CONTRACT_ADDRESS and MARKET_CONTRACT_ADDRESS environment variables.');
     }
     
     tokenContract = new ethers.Contract(tokenAddress, FractionalEquityTokenABI, custodianWallet);
@@ -118,20 +126,12 @@ export function getBlockchainInstances() {
 
 async function deployContracts() {
   try {
-    console.log('📜 Auto-deploying contracts...');
-    const contractsDir = path.join(__dirname, '../../..');
-    const deployScript = path.join(contractsDir, 'contracts/scripts/deploy.ts');
-    
-    // Try to run deployment from contracts directory
-    execSync(`cd ${contractsDir}/contracts && npx hardhat run scripts/deploy.ts --network localhost`, {
-      stdio: 'inherit',
-      timeout: 60000 // 60 second timeout
-    });
-    
-    console.log('✅ Contracts deployed successfully');
-    return true;
+    console.log('📝 Blockchain service should have deployed contracts at startup');
+    console.log('⏳ Backend is checking for deployed contracts...');
+    // Backend doesn't deploy - blockchain service handles it
+    return false;
   } catch (error) {
-    console.warn('⚠️  Could not auto-deploy contracts, will try to load from deployment file or env vars');
+    console.warn('⚠️  Could not verify deployed contracts');
     return false;
   }
 }

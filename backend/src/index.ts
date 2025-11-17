@@ -34,7 +34,7 @@ async function startServer() {
     
     let blockchainReady = false;
     let attempts = 0;
-    const maxAttempts = 120; // 2 minutes total
+    const maxAttempts = 180; // 3 minutes total - allow time for contract deployment
     
     while (!blockchainReady && attempts < maxAttempts) {
       try {
@@ -46,18 +46,19 @@ async function startServer() {
         const waitTime = 1000; // 1 second between attempts
         const progress = Math.round((attempts / maxAttempts) * 100);
         
-        if (attempts % 10 === 0) {
-          console.warn(`⏳ Waiting for blockchain... ${progress}% (${attempts}/${maxAttempts})`);
+        if (attempts % 15 === 0 || attempts === 1) {
+          console.warn(`⏳ Waiting for blockchain... ${progress}% (${attempts}/${maxAttempts}) - ${err.message?.substring(0, 50) || 'connecting...'}`);
         }
         
         if (attempts < maxAttempts) {
           await new Promise(resolve => setTimeout(resolve, waitTime));
         } else {
-          console.error('❌ FATAL: Blockchain initialization failed after 2 minutes');
+          console.error('❌ FATAL: Blockchain initialization failed after 3 minutes');
           console.error('Please ensure:');
           console.error('  1. Blockchain service is running');
           console.error('  2. Contracts are deployed');
           console.error('  3. RPC URL is correct:', config.blockchain.rpcUrl);
+          console.error('Error details:', err.message);
           process.exit(1);
         }
       }
