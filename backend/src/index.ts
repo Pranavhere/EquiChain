@@ -29,11 +29,26 @@ async function startServer() {
     console.log('🗄️  Initializing database...');
     await initializeDatabase();
 
-    // Initialize blockchain connection (non-blocking)
+    // Initialize blockchain connection (non-blocking with retry)
     console.log('🔗 Initializing blockchain...');
-    initializeBlockchain()
-      .then(() => console.log('✅ Blockchain initialized successfully\n'))
-      .catch((err) => console.warn('⚠️  Blockchain initialization failed (will retry):', err.message));
+    
+    const retryBlockchain = async (attempt = 1, maxAttempts = 5) => {
+      try {
+        await initializeBlockchain();
+        console.log('✅ Blockchain initialized successfully\n');
+      } catch (err: any) {
+        console.warn(`⚠️  Blockchain initialization attempt ${attempt}/${maxAttempts} failed:`, err.message);
+        if (attempt < maxAttempts) {
+          const delay = attempt * 2000; // Exponential backoff: 2s, 4s, 6s, 8s, 10s
+          console.log(`🔄 Retrying in ${delay/1000}s...`);
+          setTimeout(() => retryBlockchain(attempt + 1, maxAttempts), delay);
+        } else {
+          console.error('❌ Blockchain initialization failed after max attempts. Trading features disabled.');
+        }
+      }
+    };
+    
+    retryBlockchain();
 
     // Create Express app
     const app = express();
