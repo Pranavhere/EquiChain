@@ -32,15 +32,17 @@ async function startServer() {
     // Initialize blockchain connection (async with retry - non-blocking)
     console.log('🔗 Initializing blockchain...');
     
-    const retryBlockchain = async (attempt = 1, maxAttempts = 20) => {
+    const retryBlockchain = async (attempt = 1, maxAttempts = 60) => {
       try {
         await initializeBlockchain();
         console.log('✅ Blockchain initialized successfully\n');
       } catch (err: any) {
         console.warn(`⚠️  Blockchain initialization attempt ${attempt}/${maxAttempts} failed:`, err.message);
         if (attempt < maxAttempts) {
-          const delay = 5000; // Fixed 5 second delay
-          console.log(`🔄 Retrying in ${delay/1000}s...`);
+          const delay = 2000; // Fixed 2 second delay
+          if (attempt % 5 === 0) {
+            console.log(`🔄 Still waiting for blockchain... (${Math.floor(attempt/5)}/12)`);
+          }
           setTimeout(() => retryBlockchain(attempt + 1, maxAttempts), delay);
         } else {
           console.error('❌ WARNING: Blockchain initialization failed after max attempts.');
