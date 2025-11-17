@@ -154,9 +154,9 @@ router.post('/buy', authMiddleware, async (req: AuthRequest, res: Response) => {
       const blockchainPrice = await marketContract.getCurrentPrice();
       livePriceInPaise = await getPriceWithFallback(stock.yahooSymbol, Number(blockchainPrice));
     } catch (blockchainError: any) {
-      // If blockchain isn't ready, use fallback price
-      console.warn('⚠️  Blockchain not available, using fallback price');
-      livePriceInPaise = await getPriceWithFallback(stock.yahooSymbol, 10000000); // Default fallback
+      // Use Yahoo Finance fallback if blockchain isn't ready
+      console.warn('⚠️  Using Yahoo Finance price (blockchain not available)');
+      livePriceInPaise = await getPriceWithFallback(stock.yahooSymbol, 10000000);
     }
     
     console.log(`🛒 Buy - Amount: ₹${amountInRupees}, Live Price: ₹${livePriceInPaise/100}`);
