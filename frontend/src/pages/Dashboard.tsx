@@ -1,19 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { portfolioAPI } from '../lib/api';
-import axios from 'axios';
+import { portfolioAPI, api as mainApi } from '../lib/api';
 
-const api = axios.create({
-  baseURL: 'http://localhost:8000',
-});
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// Use the main API client that has proper auto-detection
+const api = mainApi;
 
 const copyToClipboard = async (text: string) => {
   try {
