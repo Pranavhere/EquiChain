@@ -32,11 +32,15 @@ export const AppDataSource = new DataSource(dataSourceOptions);
 
 export async function initializeDatabase() {
   try {
+    console.log(`   Connecting to database (${isPostgres ? 'PostgreSQL' : 'SQLite'})...`);
     await AppDataSource.initialize();
     console.log('✅ Database connection established');
+    console.log(`   Database type: ${isPostgres ? 'PostgreSQL' : 'SQLite'}`);
     return AppDataSource;
-  } catch (error) {
-    console.error('❌ Database connection failed:', error);
+  } catch (error: any) {
+    console.error('❌ Database connection failed:');
+    console.error(`   Error: ${error.message}`);
+    console.error(`   Database URL: ${dbUrl.substring(0, 30)}...`);
     throw error;
   }
 }

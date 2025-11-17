@@ -15,11 +15,21 @@ async function startServer() {
   console.log('🚀 EquiChain Backend Server');
   console.log('='.repeat(60) + '\n');
 
+  // Log environment for debugging
+  console.log('📊 Environment Configuration:');
+  console.log(`   NODE_ENV: ${config.nodeEnv}`);
+  console.log(`   PORT: ${config.port}`);
+  console.log(`   DATABASE_URL: ${config.database.url.substring(0, 20)}...`);
+  console.log(`   RPC_URL: ${config.blockchain.rpcUrl}`);
+  console.log('');
+
   try {
     // Initialize database
+    console.log('🗄️  Initializing database...');
     await initializeDatabase();
 
     // Initialize blockchain connection (non-blocking for Railway deployment)
+    console.log('🔗 Initializing blockchain...');
     initializeBlockchain().catch(err => {
       console.warn('⚠️  Blockchain initialization failed (will retry):', err.message);
       console.warn('⚠️  Server will start without blockchain. Deploy contracts and restart.');
