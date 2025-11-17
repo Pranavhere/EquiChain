@@ -7,6 +7,7 @@
     "test": "hardhat test",
     "node": "hardhat node",
     "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
+    "deploy:production": "hardhat run scripts/deploy.ts --network production",
     "compile": "hardhat compile",
     "coverage": "hardhat coverage"
   },
