@@ -49,18 +49,28 @@ export async function initializeBlockchain() {
     console.log(`💰 Custodian wallet: ${custodianWallet.address}`);
     console.log(`💰 Custodian balance: ${ethers.formatEther(balance)} ETH`);
     
-    // Load deployment addresses
-    const deploymentsPath = path.join(__dirname, '../../../contracts/deployments/local.json');
+    // Load deployment addresses from environment or file
+    let tokenAddress: string;
+    let marketAddress: string;
     
-    if (!fs.existsSync(deploymentsPath)) {
-      throw new Error('Deployment file not found. Please deploy contracts first.');
+    // Try environment variables first (for production/Railway)
+    if (process.env.TOKEN_CONTRACT_ADDRESS && process.env.MARKET_CONTRACT_ADDRESS) {
+      tokenAddress = process.env.TOKEN_CONTRACT_ADDRESS;
+      marketAddress = process.env.MARKET_CONTRACT_ADDRESS;
+      console.log('📝 Using contract addresses from environment variables');
+    } else {
+      // Fall back to deployment file (for local development)
+      const deploymentsPath = path.join(__dirname, '../../../contracts/deployments/local.json');
+      
+      if (!fs.existsSync(deploymentsPath)) {
+        throw new Error('Deployment file not found and no contract addresses in environment. Please deploy contracts first.');
+      }
+      
+      const deploymentData = JSON.parse(fs.readFileSync(deploymentsPath, 'utf-8'));
+      tokenAddress = deploymentData.contracts.FractionalEquityToken.address;
+      marketAddress = deploymentData.contracts.EquiChainMarket.address;
+      console.log('📝 Using contract addresses from deployment file');
     }
-    
-    const deploymentData = JSON.parse(fs.readFileSync(deploymentsPath, 'utf-8'));
-    
-    // Initialize contracts
-    const tokenAddress = deploymentData.contracts.FractionalEquityToken.address;
-    const marketAddress = deploymentData.contracts.EquiChainMarket.address;
     
     tokenContract = new ethers.Contract(tokenAddress, FractionalEquityTokenABI, custodianWallet);
     marketContract = new ethers.Contract(marketAddress, EquiChainMarketABI, custodianWallet);

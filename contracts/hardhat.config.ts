@@ -23,6 +23,10 @@ const config: HardhatUserConfig = {
       url: "http://127.0.0.1:8545",
       chainId: 31337,
     },
+    railway: {
+      url: "https://equichain-blockchain-production.up.railway.app",
+      chainId: 31337,
+    },
     production: {
       url: process.env.BLOCKCHAIN_RPC_URL || "http://localhost:8545",
       chainId: 31337,
