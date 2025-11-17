@@ -1,4 +1,3 @@
-````markdown
 # 🏦 EquiChain - Fractional Equity Trading Platform
 
 ## 🌐 Live Deployment
@@ -628,6 +627,8 @@ For issues, questions, or improvements:
 ---
 
 **⚠️ Important Note**: This is a simulation for educational purposes. Not for production use with real money.
+
+
 
 **🚀 Ready to deploy?** Check out [RAILWAY_SETUP.md](./RAILWAY_SETUP.md) for step-by-step instructions!
 
