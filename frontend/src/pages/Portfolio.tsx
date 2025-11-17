@@ -7,8 +7,6 @@ export default function Portfolio() {
   const [portfolio, setPortfolio] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [sellAmount, setSellAmount] = useState('');
-  const [sellLoading, setSellLoading] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
   const [showTxModal, setShowTxModal] = useState(false);
 
@@ -29,29 +27,6 @@ export default function Portfolio() {
     }
   };
 
-  const handleSell = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSellLoading(true);
-    setMessage(null);
-
-    try {
-      const response = await marketAPI.sell(sellAmount);
-      setMessage({
-        type: 'success',
-        text: `Successfully sold ${sellAmount} tokens for ₹${response.data.amountReceived}!`,
-      });
-      setSellAmount('');
-      fetchPortfolio();
-    } catch (error: any) {
-      setMessage({
-        type: 'error',
-        text: error.response?.data?.error || 'Sale failed',
-      });
-    } finally {
-      setSellLoading(false);
-    }
-  };
-
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -60,8 +35,7 @@ export default function Portfolio() {
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    setMessage({ type: 'success', text: `${label} copied to clipboard!` });
-    setTimeout(() => setMessage(null), 2000);
+    alert(`${label} copied to clipboard!`);
   };
 
   const openTxModal = (tx: any) => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { portfolioAPI } from '../lib/api';
 import axios from 'axios';
@@ -33,7 +33,6 @@ export default function BlockchainConcepts() {
     averageGasPrice: '0',
     blockTime: 2,
   });
-  const [liveEvent, setLiveEvent] = useState<string>('');
   const [selectedBlock, setSelectedBlock] = useState<any>(null);
   const [selectedTx, setSelectedTx] = useState<any>(null);
   const [showBlockModal, setShowBlockModal] = useState(false);

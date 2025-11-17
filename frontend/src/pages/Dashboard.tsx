@@ -74,7 +74,6 @@ export default function Dashboard() {
   const [txDetails, setTxDetails] = useState<TxDetails | null>(null);
   const [showTxModal, setShowTxModal] = useState(false);
   const [priceKeys, setPriceKeys] = useState<Map<string, number>>(new Map());
-  const [lastPrices, setLastPrices] = useState<Map<string, number>>(new Map());
   const [scrollPosition, setScrollPosition] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -93,7 +92,7 @@ export default function Dashboard() {
     if (stocks.length === 0) return;
     
     // Create individual update intervals for each stock with random 3-7 second delays
-    const intervals: NodeJS.Timeout[] = [];
+    const intervals: ReturnType<typeof setInterval>[] = [];
     
     stocks.forEach((stock, i) => {
       // Each stock starts at a different time (staggered)
@@ -118,12 +117,6 @@ export default function Dashboard() {
                   setPriceKeys(prev => {
                     const newMap = new Map(prev);
                     newMap.set(stock.symbol, Date.now());
-                    return newMap;
-                  });
-                  
-                  setLastPrices(prev => {
-                    const newMap = new Map(prev);
-                    newMap.set(stock.symbol, updatedStock.price);
                     return newMap;
                   });
                 }
