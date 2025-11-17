@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Portfolio from './pages/Portfolio';
 import BlockchainConcepts from './pages/BlockchainConcepts';
+import Status from './pages/Status';
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const token = localStorage.getItem('token');
@@ -14,6 +15,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/status" element={<Status />} />
         <Route
           path="/dashboard"
           element={
